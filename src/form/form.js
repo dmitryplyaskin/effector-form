@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { createStore, createEvent, clearNode } from 'effector'
 import nanoid from 'nanoid'
 import { FormCtxProvider } from './context'
@@ -9,7 +9,8 @@ const defParams = {
 	touched: false,
 }
 
-const createForm = ({ initialState = {}, id, ...props }) => {
+const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
+	const __id = `__${nanoid()}`
 	const initField = createEvent()
 
 	const onChange = createEvent()
@@ -23,8 +24,8 @@ const createForm = ({ initialState = {}, id, ...props }) => {
 		}
 	})
 
-	const $store = createStore(initial)
-	$store
+	const $form = createStore(initial)
+	$form
 		.on(onChange, (state, { name, value }) => ({
 			...state,
 			[name]: { ...state[name], value },
@@ -41,46 +42,57 @@ const createForm = ({ initialState = {}, id, ...props }) => {
 			...state,
 			[name]: { value: '', ...defParams },
 		}))
-	// .watch(x => console.log('form', x))
 
-	$store.__formMethods = {
+	$form.__formMethods = {
 		initField,
 		onChange,
 		onFocus,
 		onBlur,
 	}
 
-	return $store
+	const $values = $form.map(store => {
+		const values = {}
+		Object.keys(store).forEach(name => {
+			values[name] = store[name].value
+		})
+		return values
+	})
+
+	if (getValues) {
+		$values.watch(getValues)
+	}
+
+	const EffectorForm = ({ children }) => {
+		const handleSubmit = () => {
+			onSubmit($values.getState())
+		}
+		return (
+			<FormCtxProvider value={__id}>
+				{children({ handleSubmit })}
+			</FormCtxProvider>
+		)
+	}
+
+	window[__id] = $form
+	return { EffectorForm, __id }
 }
 
-export const Form = ({ className, children, ...props }) => {
-	const [__id, __SetId] = useState('')
+const useEffectorForm = ({ ...props }) => {
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const { __id, EffectorForm } = useMemo(() => createForm(props), [])
 	useEffect(() => {
-		const id = `__${nanoid()}`
-		const form = createForm({ id, ...props })
-		__SetId(id)
-		window[id] = form
 		return () => {
-			clearNode(window[id])
-			window[id] = undefined
+			clearNode(window[__id])
+			window[__id] = undefined
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
-
-	// console.log('render')
-	return (
-		<FormCtxProvider value={__id}>
-			{__id && <form className={className}>{children}</form>}
-		</FormCtxProvider>
-	)
+	return {
+		EffectorForm,
+	}
 }
 
-// export const Form = createComponent(createForm, (props, state) => (
-// 	<FormComponent {...props} {...state} />
-// ))
-
-// const FormComponent = ({ children }) => {
-// 	const formRef = useRef()
-// 	console.log(formRef)
-// 	return <form ref={formRef}>{children}</form>
-// }
+export const Form = ({ children, ...props }) => {
+	const { EffectorForm } = useEffectorForm(props)
+	return <EffectorForm>{children}</EffectorForm>
+}
