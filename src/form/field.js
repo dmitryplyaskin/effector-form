@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useFormContext } from './context'
 import { useStoreMap } from 'effector-react'
 import { createStore, clearNode } from 'effector'
-import { equalsObj, equalsArray } from './utils'
+import { equalsArray } from './utils'
 
 export const Field = ({
 	children,
@@ -33,24 +33,19 @@ export const Field = ({
 			calc = createStore([])
 			calc
 				.on($values, (state, values) => {
-					const v = []
-					calculate.target.forEach(x => {
-						if (!values[x]) {
-							v.push('')
-						} else {
-							v.push(values[x])
-						}
-					})
-					console.log('on', v)
+					const v = gc(calculate, values)
 					if (!equalsArray(v, state)) {
-						console.log('is?')
 						return v
 					}
 					return state
 				})
 				.watch(x => {
-					console.log('watch', x)
-					$form.__formMethods.onChange({ name, value: calculate.fn(...x) })
+					if (x.length) {
+						$form.__formMethods.onChange({ name, value: calculate.fn(...x) })
+					} else {
+						const v = gc(calculate, $values.getState())
+						$form.__formMethods.onChange({ name, value: calculate.fn(...v) })
+					}
 				})
 		}
 		return () => {
@@ -79,4 +74,16 @@ export const Field = ({
 		return React.createElement(component, { input, error, ...props })
 	}
 	return children({ input, error, ...props })
+}
+
+const gc = (c, v) => {
+	const _v = []
+	c.target.forEach(x => {
+		if (!v[x]) {
+			_v.push('')
+		} else {
+			_v.push(v[x])
+		}
+	})
+	return _v
 }
