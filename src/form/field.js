@@ -2,9 +2,16 @@ import React, { useEffect } from 'react'
 import { useFormContext } from './context'
 import { useStoreMap } from 'effector-react'
 import { createStore, clearNode } from 'effector'
-import { equalsObj } from './utils'
+import { equalsObj, equalsArray } from './utils'
 
-export const Field = ({ children, name, component, calculate, ...props }) => {
+export const Field = ({
+	children,
+	name,
+	component,
+	calculate,
+	validate,
+	...props
+}) => {
 	const { $form, $values } = useFormContext()
 	const field = useStoreMap({
 		store: $form,
@@ -23,29 +30,36 @@ export const Field = ({ children, name, component, calculate, ...props }) => {
 	useEffect(() => {
 		let calc
 		if (calculate && calculate.target && calculate.fn) {
-			calc = createStore({})
-			calc.on($values, (state, values) => {
-				const v = {}
-				calculate.target.forEach(x => {
-					if (!values[x]) {
-						v[x] = ''
-					} else {
-						v[x] = values[x]
+			calc = createStore([])
+			calc
+				.on($values, (state, values) => {
+					const v = []
+					calculate.target.forEach(x => {
+						if (!values[x]) {
+							v.push('')
+						} else {
+							v.push(values[x])
+						}
+					})
+					console.log('on', v)
+					if (!equalsArray(v, state)) {
+						console.log('is?')
+						return v
 					}
+					return state
 				})
-				if (!equalsObj(v, state)) return v
-				return state
-			})
-			calc.watch(x =>
-				$form.__formMethods.onChange({ name, value: calculate.fn(x) })
-			)
+				.watch(x => {
+					console.log('watch', x)
+					$form.__formMethods.onChange({ name, value: calculate.fn(...x) })
+				})
 		}
 		return () => {
-			if (calculate && calculate.target && calculate.fn) {
+			if (calc) {
 				clearNode(calc, { deep: true })
 			}
 		}
-	}, [$form, $values, calculate, name])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [calculate])
 
 	const input = {
 		name,
@@ -59,8 +73,10 @@ export const Field = ({ children, name, component, calculate, ...props }) => {
 		onFocus: () => $form.__formMethods.onFocus({ name }),
 	}
 
+	const error = validate ? validate(field.value) : undefined
+
 	if (component) {
-		return React.createElement(component, { input, ...props })
+		return React.createElement(component, { input, error, ...props })
 	}
-	return children({ input, ...props })
+	return children({ input, error, ...props })
 }

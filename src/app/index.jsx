@@ -15,7 +15,7 @@ export const App = () => {
 		<div>
 			<button onClick={() => setView(s => !s)}>change view</button>
 			<button onClick={() => setValues(s => !s)}>values?</button>
-			<h1>{values ? 'my awesome form' : 'react-final-form used in rst'}</h1>
+			<h1>my awesome form</h1>
 			{view && (
 				<Form
 					// getValues={values ? v => console.log(v) : () => null}
@@ -32,13 +32,19 @@ export const App = () => {
 								{({ input }) => <input type="text" {...input} />}
 							</Field>
 							<Field name="password" component={Input} />
-							<Field name="notCalc" component={Input} />
+							<Field
+								validate={value =>
+									value.length < 10 ? 'меньше 10' : undefined
+								}
+								name="notCalc"
+								component={Input}
+							/>
 							{values && (
 								<Field
 									name="calculate"
 									calculate={{
 										target: ['name', 'password', 'dsa'],
-										fn: ({ name, password }) => name + '123' + password,
+										fn: (n, p, d) => n + '123' + p,
 									}}
 									component={Input}
 								/>
@@ -52,7 +58,12 @@ export const App = () => {
 	)
 }
 
-const Input = ({ input }) => {
-	// console.log('RENDER', input.name)
-	return <input type="text" {...input} />
+const Input = ({ input, error }) => {
+	// console.log('RENDER', input.name, error)
+	return (
+		<div>
+			<input type="text" {...input} />
+			{error}
+		</div>
+	)
 }

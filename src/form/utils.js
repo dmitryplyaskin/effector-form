@@ -7,3 +7,13 @@ export const equalsObj = (f, s) => {
 	})
 	return e
 }
+export const equalsArray = (f, s) => {
+	let e = true
+	if (f.length !== s.length) return false
+	f.forEach((x, i) => {
+		if (x !== s[i]) {
+			e = false
+		}
+	})
+	return e
+}
