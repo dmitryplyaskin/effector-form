@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Form, Field } from '../form'
 
-import { Form as RFFform, Field as RFFfield } from 'react-final-form'
+// import { Form as RFFform, Field as RFFfield } from 'react-final-form'
 
 export const App = () => {
 	const [view, setView] = useState(true)

@@ -3,9 +3,9 @@ import { useFormContext } from './context'
 import { useStoreMap } from 'effector-react'
 
 export const Field = ({ children, name, component, ...props }) => {
-	const ctx = useFormContext()
+	const $form = useFormContext()
 	const field = useStoreMap({
-		store: window[ctx],
+		store: $form,
 		keys: [name],
 		fn: (form, [name]) => {
 			return form[name] ? form[name] : null
@@ -13,7 +13,7 @@ export const Field = ({ children, name, component, ...props }) => {
 	})
 	useEffect(() => {
 		if (!field) {
-			window[ctx].__formMethods.initField({ name })
+			$form.__formMethods.initField({ name })
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -22,12 +22,12 @@ export const Field = ({ children, name, component, ...props }) => {
 		name,
 		value: field ? field.value : '',
 		onChange: v =>
-			window[ctx].__formMethods.onChange({
+			$form.__formMethods.onChange({
 				name,
 				value: v && v.target ? v.target.value : v,
 			}),
-		onBlur: () => window[ctx].__formMethods.onBlur({ name }),
-		onFocus: () => window[ctx].__formMethods.onFocus({ name }),
+		onBlur: () => $form.__formMethods.onBlur({ name }),
+		onFocus: () => $form.__formMethods.onFocus({ name }),
 	}
 	if (component) {
 		return React.createElement(component, { input, ...props })
