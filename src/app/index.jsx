@@ -18,9 +18,13 @@ export const App = () => {
 			<h1>{values ? 'my awesome form' : 'react-final-form used in rst'}</h1>
 			{view && (
 				<Form
-					getValues={values ? v => console.log(v) : () => null}
+					// getValues={values ? v => console.log(v) : () => null}
 					onSubmit={onSubmit}
-					initialState={{ name: 'dima', password: 'veryHardPassword' }}
+					initialState={{
+						name: 'dima',
+						password: 'veryHardPassword',
+						notCalc: 'no',
+					}}
 				>
 					{({ handleSubmit }) => (
 						<div>
@@ -28,6 +32,17 @@ export const App = () => {
 								{({ input }) => <input type="text" {...input} />}
 							</Field>
 							<Field name="password" component={Input} />
+							<Field name="notCalc" component={Input} />
+							{values && (
+								<Field
+									name="calculate"
+									calculate={{
+										target: ['name', 'password', 'dsa'],
+										fn: ({ name, password }) => name + '123' + password,
+									}}
+									component={Input}
+								/>
+							)}
 							<button onClick={handleSubmit}>submit form</button>
 						</div>
 					)}
@@ -38,6 +53,6 @@ export const App = () => {
 }
 
 const Input = ({ input }) => {
-	console.log('RENDER', input.name)
+	// console.log('RENDER', input.name)
 	return <input type="text" {...input} />
 }
