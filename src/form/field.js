@@ -67,14 +67,16 @@ export const Field = ({
 		onBlur: () => $form.__formMethods.onBlur({ name }),
 		onFocus: () => $form.__formMethods.onFocus({ name }),
 	}
-
-	const error = validate ? validate(field.value) : undefined
+	const meta = {
+		error: validate ? validate(field.value) : undefined,
+	}
+	console.log(field)
 
 	if (component) {
-		return React.createElement(component, { input, error, ...props })
+		return React.createElement(component, { input, meta, ...props })
 	}
 	if (children) {
-		return children({ input, error, ...props })
+		return children({ input, meta, ...props })
 	}
 	return null
 }

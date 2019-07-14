@@ -7,6 +7,8 @@ const defParams = {
 	focus: false,
 	valid: false,
 	touched: false,
+	visited: false,
+	modified: false,
 }
 
 const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
@@ -22,7 +24,7 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	Object.keys(initialState).forEach(name => {
 		initial[name] = {
 			value: initialState[name],
-			...defParams,
+			meta: { ...defParams },
 		}
 	})
 
@@ -34,15 +36,18 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 		}))
 		.on(onFocus, (state, { name }) => ({
 			...state,
-			[name]: { ...state[name], focus: true, touched: true },
+			[name]: {
+				...state[name],
+				meta: { ...state[name].meta, focus: true, touched: true },
+			},
 		}))
 		.on(onBlur, (state, { name, value }) => ({
 			...state,
-			[name]: { ...state[name], focus: false },
+			[name]: { ...state[name], meta: { ...state[name].meta, focus: false } },
 		}))
 		.on(initField, (state, { name }) => ({
 			...state,
-			[name]: { value: '', ...defParams },
+			[name]: { value: '', meta: { ...defParams } },
 		}))
 		.watch(__getValues)
 

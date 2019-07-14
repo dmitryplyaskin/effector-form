@@ -1,12 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const Input = ({ label, input, meta, error }) => {
+export const Input = ({ label, input, meta }) => {
 	return (
 		<Wrapper>
 			{label && <Label>{label}</Label>}
 			<InputI {...input} type="text" />
-			{error && <Error>{error}</Error>}
+			{meta.error && <Error>{meta.error}</Error>}
 		</Wrapper>
 	)
 }
