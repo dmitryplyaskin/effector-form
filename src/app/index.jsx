@@ -44,8 +44,8 @@ export const App = () => {
 									name="calculate"
 									label="calculate"
 									calculate={{
-										target: ['name', 'password', 'dsa'],
-										fn: (n, p, d) => n + '123' + p,
+										target: ['name', 'password'],
+										fn: (n, p) => n + '123' + p,
 									}}
 									component={Input}
 								/>

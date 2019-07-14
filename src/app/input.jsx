@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 `
 const InputI = styled.input`
 	font-size: 14px;
-	padding: 10px 5px;
+	padding: 10px;
 	border-radius: 3px;
 	border: 1px solid #cecece;
 `
