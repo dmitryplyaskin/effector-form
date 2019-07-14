@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+import styled from 'styled-components'
 import { Form, Field } from '../form'
-
+import { Input } from './input'
 // import { Form as RFFform, Field as RFFfield } from 'react-final-form'
 
 export const App = () => {
@@ -27,21 +28,21 @@ export const App = () => {
 					}}
 				>
 					{({ handleSubmit }) => (
-						<div>
-							<Field name="name">
-								{({ input }) => <input type="text" {...input} />}
-							</Field>
-							<Field name="password" component={Input} />
+						<Wrapper>
+							<Field label="name" name="name" component={Input} />
+							<Field label="password" name="password" component={Input} />
 							<Field
 								validate={value =>
 									value.length < 10 ? 'меньше 10' : undefined
 								}
 								name="notCalc"
+								label="notCalc"
 								component={Input}
 							/>
 							{values && (
 								<Field
 									name="calculate"
+									label="calculate"
 									calculate={{
 										target: ['name', 'password', 'dsa'],
 										fn: (n, p, d) => n + '123' + p,
@@ -50,7 +51,7 @@ export const App = () => {
 								/>
 							)}
 							<button onClick={handleSubmit}>submit form</button>
-						</div>
+						</Wrapper>
 					)}
 				</Form>
 			)}
@@ -58,12 +59,6 @@ export const App = () => {
 	)
 }
 
-const Input = ({ input, error }) => {
-	// console.log('RENDER', input.name, error)
-	return (
-		<div>
-			<input type="text" {...input} />
-			{error}
-		</div>
-	)
-}
+const Wrapper = styled.div`
+	padding: 20px;
+`

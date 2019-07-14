@@ -4,13 +4,13 @@
   "private": true,
   "dependencies": {
     "effector": "^20.0.0",
-    "effector-react": "^20.0.0",
-    "final-form": "^4.16.1",
-    "nanoid": "^2.0.3",
+    "effector-react": "^20.0.4",
+    "final-form": "^4.17.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-final-form": "^6.3.0",
-    "react-scripts": "3.0.1"
+    "react-scripts": "3.0.1",
+    "styled-components": "^4.3.2"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -73,7 +73,10 @@ export const Field = ({
 	if (component) {
 		return React.createElement(component, { input, error, ...props })
 	}
-	return children({ input, error, ...props })
+	if (children) {
+		return children({ input, error, ...props })
+	}
+	return null
 }
 
 const gc = (c, v) => {
