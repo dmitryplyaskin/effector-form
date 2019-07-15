@@ -26,7 +26,6 @@ const useField = ({ name, calculate, validate }) => {
 	}, [])
 	useCalculate({ calculate, input, $values })
 	useValidate({ validate, _methods, $form, name })
-
 	return { input, meta }
 }
 

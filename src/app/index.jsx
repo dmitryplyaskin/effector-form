@@ -34,8 +34,24 @@ export const App = () => {
 								validate={value =>
 									value.length < 10 ? 'меньше 10' : undefined
 								}
-								name="notCalc"
-								label="notCalc"
+								name="notCalc1"
+								label="notCalc1"
+								component={Input}
+							/>
+							<Field
+								validate={value =>
+									value.length < 10 ? 'меньше 10' : undefined
+								}
+								name="notCalc2"
+								label="notCalc2"
+								component={Input}
+							/>
+							<Field
+								validate={value =>
+									value.length < 10 ? 'меньше 10' : undefined
+								}
+								name="notCalc3"
+								label="notCalc3"
 								component={Input}
 							/>
 							{values && (

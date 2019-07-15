@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import { createStore, createEvent, clearNode } from 'effector'
 import { FormCtxProvider } from './context'
-import { equalsObj, initInput, initMeta } from './utils'
+import { equalsObj, initInput, initMeta, _submitError } from './utils'
 
 const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	const _initField = createEvent()
@@ -10,12 +10,16 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	const _onFocus = createEvent()
 	const _onBlur = createEvent()
 	const _onValidate = createEvent()
+	const _onMetaData = createEvent()
+	const _onSubmitError = createEvent()
 
 	const _methods = {
 		_onChange,
 		_onFocus,
 		_onBlur,
 		_onValidate,
+		_onMetaData,
+		_onSubmitError,
 		_initField,
 	}
 
@@ -60,6 +64,11 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 			...state,
 			[name]: { ...state[name], meta: { ...state[name].meta, ...value } },
 		}))
+		.on(_onMetaData, (state, { name, data }) => ({
+			...state,
+			[name]: { ...state[name], meta: { ...state[name].meta, ...data } },
+		}))
+		.on(_onSubmitError, _submitError)
 		.on(_initField, (state, { name }) => ({
 			...state,
 			[name]: {
@@ -84,7 +93,21 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	}
 
 	const handleSubmit = () => {
-		onSubmit($values.getState())
+		const form = $form.getState()
+		let _valid = true
+		let _names = []
+		Object.keys(form).forEach(name => {
+			const { valid, validate } = form[name].meta
+			if (validate && !valid) {
+				_names.push(name)
+				_valid = false
+			}
+		})
+		if (_valid) {
+			onSubmit(form)
+		} else {
+			_onSubmitError(_names)
+		}
 	}
 
 	return { $form, handleSubmit, $values, _methods }

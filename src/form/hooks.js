@@ -50,6 +50,7 @@ export const useValidate = ({ validate, _methods, $form, name }) => {
 	useEffect(() => {
 		let valid
 		if (validate) {
+			_methods._onMetaData({ name, data: { validate: true } })
 			valid = $form.map(x => x[name])
 			valid.watch(data => {
 				const { error, touched } = data.meta

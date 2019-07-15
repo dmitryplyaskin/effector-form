@@ -36,10 +36,25 @@ export const initMeta = (inited = false) => {
 	return {
 		focus: false,
 		valid: false,
+		validate: false,
 		touched: false,
 		error: undefined,
 		visited: false,
 		modified: false,
 		initial: inited,
 	}
+}
+
+export const _submitError = (state, names) => {
+	const newState = { ...state }
+	names.forEach(name => {
+		newState[name] = {
+			...newState[name],
+			meta: {
+				...newState[name].meta,
+				touched: true,
+			},
+		}
+	})
+	return newState
 }
