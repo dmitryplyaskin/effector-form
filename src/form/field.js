@@ -2,22 +2,25 @@ import React, { useEffect } from 'react'
 import { useFormContext } from './context'
 import { useStoreMap } from 'effector-react'
 import { createStore, clearNode } from 'effector'
-import { equalsArray } from './utils'
+import { equalsArray, initInput, initMeta } from './utils'
 
 const useField = ({ name, calculate, validate }) => {
-	const { $form, $values, _initField } = useFormContext()
+	const { $form, $values, _methods } = useFormContext()
 	const { input, meta } = useStoreMap({
 		store: $form,
 		keys: [name],
 		fn: (form, [name]) => {
 			return form[name]
 				? form[name]
-				: { input: { value: '', onChange: () => null }, meta: {} }
+				: {
+						input: initInput(name, _methods),
+						meta: initMeta(),
+				  }
 		},
 	})
 	useEffect(() => {
-		if (!input.name) {
-			_initField({ name })
+		if (!meta.initial) {
+			_methods._initField({ name })
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -47,8 +50,9 @@ const useField = ({ name, calculate, validate }) => {
 				clearNode(calc, { deep: true })
 			}
 		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [calculate, input.name])
+	}, [calculate])
 
 	return { input, meta }
 }

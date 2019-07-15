@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import { createStore, createEvent, clearNode } from 'effector'
 import { FormCtxProvider } from './context'
-import { equalsObj } from './utils'
+import { equalsObj, initInput, initMeta } from './utils'
 
 const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	const _initField = createEvent()
@@ -10,20 +10,19 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	const _onFocus = createEvent()
 	const _onBlur = createEvent()
 
-	const _getValues = createEvent()
-
-	const defParams = {
-		focus: false,
-		valid: false,
-		touched: false,
-		visited: false,
-		modified: false,
+	const _methods = {
+		_onChange,
+		_onFocus,
+		_onBlur,
+		_initField,
 	}
+
+	const _getValues = createEvent()
 
 	const initial = {}
 	Object.keys(initialState).forEach(name => {
 		initial[name] = {
-			meta: { ...defParams },
+			meta: initMeta(true),
 			input: {
 				name,
 				value: initialState[name],
@@ -58,21 +57,12 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 		.on(_initField, (state, { name }) => ({
 			...state,
 			[name]: {
-				meta: { ...defParams },
-				input: {
-					name,
-					value: '',
-					onChange: v =>
-						_onChange({
-							name,
-							value: v && v.target ? v.target.value : v,
-						}),
-					onBlur: () => _onBlur({ name }),
-					onFocus: () => _onFocus({ name }),
-				},
+				meta: initMeta(),
+				input: initInput(name, _methods),
 			},
 		}))
 		.watch(_getValues)
+
 	const $values = createStore({})
 	$values.on(_getValues, (state, values) => {
 		const v = {}
@@ -91,12 +81,12 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 		onSubmit($values.getState())
 	}
 
-	return { $form, handleSubmit, $values, _initField }
+	return { $form, handleSubmit, $values, _methods }
 }
 
 const useEffectorForm = ({ children, ...props }) => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const { $form, handleSubmit, $values, _initField } = useMemo(
+	const { $form, handleSubmit, $values, _methods } = useMemo(
 		() => createForm(props),
 		[props]
 	)
@@ -109,7 +99,7 @@ const useEffectorForm = ({ children, ...props }) => {
 
 	const EffectorForm = () => {
 		return (
-			<FormCtxProvider value={{ $form, $values, _initField }}>
+			<FormCtxProvider value={{ $form, $values, _methods }}>
 				{children({ handleSubmit })}
 			</FormCtxProvider>
 		)

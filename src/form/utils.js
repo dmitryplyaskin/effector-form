@@ -17,3 +17,28 @@ export const equalsArray = (f, s) => {
 	})
 	return e
 }
+
+export const initInput = (name, methods) => {
+	return {
+		value: '',
+		name,
+		onChange: v =>
+			methods._onChange({
+				name,
+				value: v && v.target ? v.target.value : v,
+			}),
+		onBlur: () => methods._onBlur({ name }),
+		onFocus: () => methods._onFocus({ name }),
+	}
+}
+
+export const initMeta = (inited = false) => {
+	return {
+		focus: false,
+		valid: false,
+		touched: false,
+		visited: false,
+		modified: false,
+		initial: inited,
+	}
+}
