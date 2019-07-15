@@ -4,29 +4,23 @@ import { useStoreMap } from 'effector-react'
 import { createStore, clearNode } from 'effector'
 import { equalsArray } from './utils'
 
-export const Field = ({
-	children,
-	name,
-	component,
-	calculate,
-	validate,
-	...props
-}) => {
-	const { $form, $values } = useFormContext()
-	const field = useStoreMap({
+const useField = ({ name, calculate, validate }) => {
+	const { $form, $values, _initField } = useFormContext()
+	const { input, meta } = useStoreMap({
 		store: $form,
 		keys: [name],
 		fn: (form, [name]) => {
-			return form[name] ? form[name] : null
+			return form[name]
+				? form[name]
+				: { input: { value: '', onChange: () => null }, meta: {} }
 		},
 	})
 	useEffect(() => {
-		if (!field) {
-			$form.__formMethods.initField({ name })
+		if (!input.name) {
+			_initField({ name })
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
-
 	useEffect(() => {
 		let calc
 		if (calculate && calculate.target && calculate.fn) {
@@ -41,10 +35,10 @@ export const Field = ({
 				})
 				.watch(x => {
 					if (x.length) {
-						$form.__formMethods.onChange({ name, value: calculate.fn(...x) })
+						input.onChange(calculate.fn(...x))
 					} else {
 						const v = gc(calculate, $values.getState())
-						$form.__formMethods.onChange({ name, value: calculate.fn(...v) })
+						input.onChange(calculate.fn(...v))
 					}
 				})
 		}
@@ -54,23 +48,24 @@ export const Field = ({
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [calculate])
+	}, [calculate, input.name])
 
-	const input = {
-		name,
-		value: field ? field.value : '',
-		onChange: v =>
-			$form.__formMethods.onChange({
-				name,
-				value: v && v.target ? v.target.value : v,
-			}),
-		onBlur: () => $form.__formMethods.onBlur({ name }),
-		onFocus: () => $form.__formMethods.onFocus({ name }),
-	}
-	const meta = {
-		error: validate ? validate(field.value) : undefined,
-	}
-	console.log(field)
+	return { input, meta }
+}
+
+export const Field = ({
+	children,
+	name,
+	component,
+	calculate,
+	validate,
+	...props
+}) => {
+	const { input, meta } = useField({ name, calculate, validate })
+
+	// const meta = {
+	// 	error: validate ? validate(field.value) : undefined,
+	// }
 
 	if (component) {
 		return React.createElement(component, { input, meta, ...props })

@@ -3,66 +3,81 @@ import { createStore, createEvent, clearNode } from 'effector'
 import { FormCtxProvider } from './context'
 import { equalsObj } from './utils'
 
-const defParams = {
-	focus: false,
-	valid: false,
-	touched: false,
-	visited: false,
-	modified: false,
-}
-
 const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
-	const initField = createEvent()
+	const _initField = createEvent()
 
-	const onChange = createEvent()
-	const onFocus = createEvent()
-	const onBlur = createEvent()
+	const _onChange = createEvent()
+	const _onFocus = createEvent()
+	const _onBlur = createEvent()
 
-	const __getValues = createEvent()
+	const _getValues = createEvent()
+
+	const defParams = {
+		focus: false,
+		valid: false,
+		touched: false,
+		visited: false,
+		modified: false,
+	}
 
 	const initial = {}
 	Object.keys(initialState).forEach(name => {
 		initial[name] = {
-			value: initialState[name],
 			meta: { ...defParams },
+			input: {
+				name,
+				value: initialState[name],
+				onChange: v =>
+					_onChange({
+						name,
+						value: v && v.target ? v.target.value : v,
+					}),
+				onBlur: () => _onBlur({ name }),
+				onFocus: () => _onFocus({ name }),
+			},
 		}
 	})
 
 	const $form = createStore(initial)
 	$form
-		.on(onChange, (state, { name, value }) => ({
+		.on(_onChange, (state, { name, value }) => ({
 			...state,
-			[name]: { ...state[name], value },
+			[name]: { ...state[name], input: { ...state[name].input, value } },
 		}))
-		.on(onFocus, (state, { name }) => ({
+		.on(_onFocus, (state, { name }) => ({
 			...state,
 			[name]: {
 				...state[name],
 				meta: { ...state[name].meta, focus: true, touched: true },
 			},
 		}))
-		.on(onBlur, (state, { name, value }) => ({
+		.on(_onBlur, (state, { name, value }) => ({
 			...state,
 			[name]: { ...state[name], meta: { ...state[name].meta, focus: false } },
 		}))
-		.on(initField, (state, { name }) => ({
+		.on(_initField, (state, { name }) => ({
 			...state,
-			[name]: { value: '', meta: { ...defParams } },
+			[name]: {
+				meta: { ...defParams },
+				input: {
+					name,
+					value: '',
+					onChange: v =>
+						_onChange({
+							name,
+							value: v && v.target ? v.target.value : v,
+						}),
+					onBlur: () => _onBlur({ name }),
+					onFocus: () => _onFocus({ name }),
+				},
+			},
 		}))
-		.watch(__getValues)
-
-	$form.__formMethods = {
-		initField,
-		onChange,
-		onFocus,
-		onBlur,
-	}
-
+		.watch(_getValues)
 	const $values = createStore({})
-	$values.on(__getValues, (state, values) => {
+	$values.on(_getValues, (state, values) => {
 		const v = {}
 		Object.keys(values).forEach(name => {
-			v[name] = values[name].value
+			v[name] = values[name].input.value
 		})
 		if (!equalsObj(v, state)) return v
 		return state
@@ -76,12 +91,15 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 		onSubmit($values.getState())
 	}
 
-	return { $form, handleSubmit, $values }
+	return { $form, handleSubmit, $values, _initField }
 }
 
 const useEffectorForm = ({ children, ...props }) => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const { $form, handleSubmit, $values } = useMemo(() => createForm(props), [])
+	const { $form, handleSubmit, $values, _initField } = useMemo(
+		() => createForm(props),
+		[props]
+	)
 	useEffect(() => {
 		return () => {
 			clearNode($form, { deep: true })
@@ -91,7 +109,7 @@ const useEffectorForm = ({ children, ...props }) => {
 
 	const EffectorForm = () => {
 		return (
-			<FormCtxProvider value={{ $form, $values }}>
+			<FormCtxProvider value={{ $form, $values, _initField }}>
 				{children({ handleSubmit })}
 			</FormCtxProvider>
 		)
