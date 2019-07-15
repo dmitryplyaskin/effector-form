@@ -9,11 +9,13 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	const _onChange = createEvent()
 	const _onFocus = createEvent()
 	const _onBlur = createEvent()
+	const _onValidate = createEvent()
 
 	const _methods = {
 		_onChange,
 		_onFocus,
 		_onBlur,
+		_onValidate,
 		_initField,
 	}
 
@@ -54,10 +56,14 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 			...state,
 			[name]: { ...state[name], meta: { ...state[name].meta, focus: false } },
 		}))
+		.on(_onValidate, (state, { name, value }) => ({
+			...state,
+			[name]: { ...state[name], meta: { ...state[name].meta, ...value } },
+		}))
 		.on(_initField, (state, { name }) => ({
 			...state,
 			[name]: {
-				meta: initMeta(),
+				meta: initMeta(true),
 				input: initInput(name, _methods),
 			},
 		}))

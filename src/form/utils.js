@@ -37,6 +37,7 @@ export const initMeta = (inited = false) => {
 		focus: false,
 		valid: false,
 		touched: false,
+		error: undefined,
 		visited: false,
 		modified: false,
 		initial: inited,

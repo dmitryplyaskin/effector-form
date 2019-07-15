@@ -24,7 +24,6 @@ export const App = () => {
 					initialState={{
 						name: 'dima',
 						password: 'veryHardPassword',
-						notCalc: 'no',
 					}}
 				>
 					{({ handleSubmit }) => (
