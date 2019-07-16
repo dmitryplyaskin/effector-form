@@ -6,7 +6,7 @@ import { Input } from './input'
 
 export const App = () => {
 	const [view, setView] = useState(true)
-	const [values, setValues] = useState(true)
+	const [, forceUpdate] = useState(true)
 
 	const onSubmit = values => {
 		console.log(values)
@@ -15,7 +15,7 @@ export const App = () => {
 	return (
 		<div>
 			<button onClick={() => setView(s => !s)}>change view</button>
-			<button onClick={() => setValues(s => !s)}>values?</button>
+			<button onClick={() => forceUpdate({})}>forceUpdate</button>
 			<h1>my awesome form</h1>
 			{view && (
 				<Form
@@ -54,17 +54,17 @@ export const App = () => {
 								label="notCalc3"
 								component={Input}
 							/>
-							{values && (
-								<Field
-									name="calculate"
-									label="calculate"
-									calculate={{
-										target: ['name', 'password'],
-										fn: (n, p) => n + '123' + p,
-									}}
-									component={Input}
-								/>
-							)}
+
+							<Field
+								name="calculate"
+								label="calculate"
+								calculate={{
+									target: ['name', 'password'],
+									fn: (n, p) => n + '123' + p,
+								}}
+								component={Input}
+							/>
+
 							<button onClick={handleSubmit}>submit form</button>
 						</Wrapper>
 					)}

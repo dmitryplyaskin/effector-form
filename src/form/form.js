@@ -113,11 +113,11 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 	return { $form, handleSubmit, $values, _methods }
 }
 
-const useEffectorForm = ({ children, ...props }) => {
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+const useForm = ({ children, ...props }) => {
 	const { $form, handleSubmit, $values, _methods } = useMemo(
 		() => createForm(props),
-		[props]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
 	)
 	useEffect(() => {
 		return () => {
@@ -140,6 +140,6 @@ const useEffectorForm = ({ children, ...props }) => {
 }
 
 export const Form = ({ ...props }) => {
-	const { EffectorForm } = useEffectorForm(props)
+	const { EffectorForm } = useForm(props)
 	return <EffectorForm />
 }
