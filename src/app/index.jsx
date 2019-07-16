@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Form, Field } from '../form'
 import { Input } from './input'
+import { FieldArray } from '../form/field_array'
 // import { Form as RFFform, Field as RFFfield } from 'react-final-form'
 
 export const App = () => {
@@ -23,6 +24,7 @@ export const App = () => {
 					onSubmit={onSubmit}
 					initialState={{
 						name: 'dima',
+						notCalc: '1234567890',
 						password: 'veryHardPassword',
 					}}
 				>
@@ -30,31 +32,14 @@ export const App = () => {
 						<Wrapper>
 							<Field label="name" name="name" component={Input} />
 							<Field label="password" name="password" component={Input} />
-							<Field
+							{/* <Field
 								validate={value =>
 									value.length < 10 ? 'меньше 10' : undefined
 								}
-								name="notCalc1"
-								label="notCalc1"
+								name="notCalc"
+								label="notCalc"
 								component={Input}
-							/>
-							<Field
-								validate={value =>
-									value.length < 10 ? 'меньше 10' : undefined
-								}
-								name="notCalc2"
-								label="notCalc2"
-								component={Input}
-							/>
-							<Field
-								validate={value =>
-									value.length < 10 ? 'меньше 10' : undefined
-								}
-								name="notCalc3"
-								label="notCalc3"
-								component={Input}
-							/>
-
+							/> */}
 							<Field
 								name="calculate"
 								label="calculate"
@@ -64,6 +49,22 @@ export const App = () => {
 								}}
 								component={Input}
 							/>
+							<FieldArray name="fields">
+								{({ fields }) => (
+									<>
+										{console.log(fields.map(x => console.log(x)))}
+										{fields.map((name, i) => (
+											<Field
+												key={i}
+												label={name}
+												name={`${name}.fields`}
+												component={Input}
+											/>
+										))}
+										<button onClick={fields.push}>add field +</button>
+									</>
+								)}
+							</FieldArray>
 
 							<button onClick={handleSubmit}>submit form</button>
 						</Wrapper>

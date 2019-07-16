@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 export const Input = ({ label, input, meta }) => {
-	console.log('render', input.name)
+	// console.log('render', input.name)
 	return (
 		<Wrapper>
 			{label && <Label>{label}</Label>}

@@ -103,8 +103,10 @@ const createForm = ({ initialState = {}, onSubmit, getValues, ...props }) => {
 				_valid = false
 			}
 		})
+		console.log(form)
 		if (_valid) {
-			onSubmit(form)
+			const values = $values.getState()
+			onSubmit(values)
 		} else {
 			_onSubmitError(_names)
 		}
@@ -126,7 +128,7 @@ const useForm = ({ children, ...props }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	const EffectorForm = () => {
+	const Form = () => {
 		return (
 			<FormCtxProvider value={{ $form, $values, _methods }}>
 				{children({ handleSubmit })}
@@ -135,11 +137,11 @@ const useForm = ({ children, ...props }) => {
 	}
 
 	return {
-		EffectorForm,
+		Form,
 	}
 }
 
 export const Form = ({ ...props }) => {
-	const { EffectorForm } = useForm(props)
-	return <EffectorForm />
+	const { Form: FormWrapper } = useForm(props)
+	return <FormWrapper />
 }
